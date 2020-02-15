@@ -1,12 +1,18 @@
 
 server:
   port: 8888
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 spring:
+  application:
+    name: "config-server"
   cloud:
     config:
       server:
         git:
-          uri:
-            skipSslValidation: true
+          uri: "https://github.com/Kondziu1999/MyCarConfig.git"
+          skipSslValidation: true
 
