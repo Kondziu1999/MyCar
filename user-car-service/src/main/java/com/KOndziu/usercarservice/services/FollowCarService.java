@@ -2,6 +2,7 @@ package com.KOndziu.usercarservice.services;
 
 import com.KOndziu.usercarservice.modules.FollowCar;
 import com.KOndziu.usercarservice.repos.FollowCarRepository;
+import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -10,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.function.Supplier;
 
 @Service
-@Log4j
+@Log
 public class FollowCarService {
 
     private final FollowCarRepository followCarRepository;

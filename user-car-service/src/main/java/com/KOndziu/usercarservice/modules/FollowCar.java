@@ -1,9 +1,6 @@
 package com.KOndziu.usercarservice.modules;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,6 +10,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Builder
+@AllArgsConstructor
 public class FollowCar {
 
     @Id
@@ -20,7 +18,7 @@ public class FollowCar {
     @Column(name = "car_id")
     private Integer carId;
 
-    @Column(name = "id")
+    @Column(name = "user_id")
     private Integer userId;
 
     @Column(name = "mark")
@@ -36,5 +34,18 @@ public class FollowCar {
     @Lob
     private byte[] image;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="id")
+    @Getter(AccessLevel.PRIVATE)
+    private User user;
 
+
+
+    public FollowCar(Integer userId, String mark, String carType, String color, byte[] image) {
+        this.userId = userId;
+        this.mark = mark;
+        this.carType = carType;
+        this.color = color;
+        this.image = image;
+    }
 }

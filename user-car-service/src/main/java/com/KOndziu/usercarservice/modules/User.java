@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -24,6 +26,12 @@ public class User {
     @JoinColumn(name = "id")
     private UserIdentities userIdentities;
 
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<FollowCar> followCarList;
+
+    public void addFollowCar(FollowCar followCar){
+        followCarList.add(followCar);
+    }
     public User(String name, String secondName) {
         this.name = name;
         this.secondName = secondName;
