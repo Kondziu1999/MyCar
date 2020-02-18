@@ -1,14 +1,15 @@
 package com.KOndziu.marketservice.controllers;
 
 
-import com.KOndziu.marketservice.modules.MarketCar;
-import com.KOndziu.marketservice.modules.MarketCarDto;
+import com.KOndziu.marketservice.modules.*;
 
-import com.KOndziu.marketservice.modules.MarketCarPic;
 import com.KOndziu.marketservice.repositories.MarketCarPicRepo;
 import com.KOndziu.marketservice.repositories.MarketCarRepo;
+import com.KOndziu.marketservice.repositories.UserRepository;
 import com.KOndziu.marketservice.services.MarketCarPicService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,19 +35,48 @@ public class MarketController {
     private final MarketCarRepo marketCarRepo;
     private final MarketCarPicRepo marketCarPicRepo;
     private final MarketCarPicService marketCarPicService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public MarketController(MarketCarRepo marketCarRepo, MarketCarPicRepo marketCarPicRepo, MarketCarPicService marketCarPicService) {
+    public MarketController(MarketCarRepo marketCarRepo, MarketCarPicRepo marketCarPicRepo, MarketCarPicService marketCarPicService, UserRepository userRepository) {
         this.marketCarRepo = marketCarRepo;
         this.marketCarPicRepo = marketCarPicRepo;
         this.marketCarPicService = marketCarPicService;
+        this.userRepository = userRepository;
+    }
+
+    @GetMapping("")
+    public List<MarketDto> getMarket(HttpServletRequest request){
+
+        List<MarketCar> marketCars=marketCarRepo.findAll();
+
+        List<MarketCarDto> marketCarDtos=marketCars.stream().map(car ->{
+            return getMarketCarDto(car,null);
+        }).collect(Collectors.toList());
+
+        return marketCarDtos.stream().map(dto->{
+            return MarketDto.builder()
+                    .carType(dto.getCarType())
+                    .price(dto.getPrice())
+                    .state(dto.getState())
+                    .announcementId(dto.getAnnoId())
+                    .endpoint(request.getScheme() + "://"
+                            + request.getServerName()
+                            + ":"
+                            + request.getServerPort()
+                            + "/market/"+dto.getAnnoId())
+                    .build();
+        }).collect(Collectors.toList());
+
     }
     @GetMapping("/{announcementId}")
     public MarketCarDto getMarketCar(HttpServletRequest request,  @PathVariable Integer announcementId){
+        //TODO add optional handling
         Optional<MarketCar> marketCarOptional=marketCarRepo.findById(announcementId);
         MarketCar marketCar=marketCarOptional.get();
+
+        //convert pictures to URLs
         Set<MarketCarPic> marketCarPics=marketCar.getMarketCarPics();
-        //List<MarketCarPic> marketCarPics=marketCarPicRepo.findAllByAnnouncementId(announcementId);
         Set<String> marketCarPicsURLs=marketCarPics.stream().map(pic ->{
             return request.getScheme() + "://"
                     + request.getServerName()
@@ -57,24 +88,22 @@ public class MarketController {
         return  getMarketCarDto(marketCar,marketCarPicsURLs);
     }
     @PostMapping("/add")
-    public String addMarketCar(String marketCarDtoString, @RequestParam("image") MultipartFile file) throws JsonProcessingException {
-
+    public String addMarketCar(String marketCarDtoString, @RequestParam("image") MultipartFile file) throws IOException {
+        //map dtoString to object
         MarketCarDto marketCarDto=new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false)
                 .readValue(marketCarDtoString,MarketCarDto.class);
         //Convert DTO to normal entity
         MarketCar marketCar=getMarketCar(marketCarDto);
-        //save marketCar in order to get announcementID
-        MarketCar savedMarketCar=marketCarRepo.save(marketCar);
-        System.out.println(savedMarketCar);
-        //store Image and get it back
-        //NOTE photoId=0 bcs it will be set by db
-        MarketCarPic marketCarPic=marketCarPicService.storeMarketCarPic(file,0,savedMarketCar.getAnnoId(),savedMarketCar);
-        //add MarketCarPic to set of pics
-        savedMarketCar.addMarketCarPic(marketCarPic);
-        //update savedMarketPic(set pic)
-        marketCarRepo.save(savedMarketCar);
+        //TODO   handle this optional
+        Optional<User> user=userRepository.findById(marketCarDto.getUserId());
+
+        MarketCarPic marketCarPic=MarketCarPic.builder().marketCar(marketCar).photo(file.getBytes()).build();
+        marketCar.addMarketCarPic(marketCarPic);
+        marketCar.setUser(user.get());
+
+        marketCarRepo.save(marketCar);
 
         return "added";
     }
@@ -96,15 +125,14 @@ public class MarketController {
     @GetMapping("/find")
     public List<MarketCarDto> findCarByCriteria(@RequestBody MarketCarDto marketCarDto){
 
-
-
+        return null;
     }
 
     private MarketCarDto getMarketCarDto(MarketCar marketCar,Set<String> marketCarPicsURLs){
         return  MarketCarDto.builder()
                 .annoId(marketCar.getAnnoId())
                 .carType(marketCar.getCarType())
-                .userId(marketCar.getUserId())
+                //.userId(marketCar.getUserId())
                 .color(marketCar.getColor())
                 .engForce(marketCar.getEngForce())
                 .engSize(marketCar.getEngSize())
@@ -125,7 +153,7 @@ public class MarketController {
         return MarketCar.builder()
                 .annoId(marketCarDto.getAnnoId())
                 .carType(marketCarDto.getCarType())
-                .userId(marketCarDto.getUserId())
+                //.userId(marketCarDto.getUserId())
                 .color(marketCarDto.getColor())
                 .engForce(marketCarDto.getEngForce())
                 .engSize(marketCarDto.getEngSize())

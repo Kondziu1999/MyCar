@@ -17,11 +17,12 @@ import java.util.Set;
 @Builder
 @ToString
 public class MarketCar {
+
+//    @Column(name = "user_id")
+//    private Integer userId ;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Integer userId ;
-
     @Column(name = "anno_id")
     private Integer annoId ;
 
@@ -50,6 +51,10 @@ public class MarketCar {
 
     @OneToMany(mappedBy = "marketCar", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     public final Set<MarketCarPic> marketCarPics=new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id",nullable = false)
+    private User user;
 
     public void addMarketCarPic(MarketCarPic marketCarPic){
         this.marketCarPics.add(marketCarPic);

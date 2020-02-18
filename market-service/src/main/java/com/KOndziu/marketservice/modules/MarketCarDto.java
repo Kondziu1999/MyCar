@@ -1,4 +1,5 @@
 package com.KOndziu.marketservice.modules;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.time.LocalDate;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 @Builder
 public class MarketCarDto {
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) //int order to hide it in serialization
     private Integer userId ;
     private Integer annoId ;
     private String carType ;
@@ -25,5 +27,11 @@ public class MarketCarDto {
     private String color;
     private String origin;
     private Set<String> picURLs;
+
+
+
+
+
+
 
 }

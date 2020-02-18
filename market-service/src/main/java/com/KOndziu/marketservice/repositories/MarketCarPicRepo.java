@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface MarketCarPicRepo extends JpaRepository<MarketCarPic, Integer> {
 
-    List<MarketCarPic> findAllByAnnouncementId(Integer announcementId);
+    //List<MarketCarPic> findAllByAnnouncementId(Integer announcementId);
 }

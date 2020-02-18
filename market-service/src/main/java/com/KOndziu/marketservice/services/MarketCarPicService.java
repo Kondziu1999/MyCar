@@ -29,8 +29,8 @@ public class MarketCarPicService {
                 throw new Exception("Sorry! Filename contains invalid path sequence " + fileName);
             }
             MarketCarPic marketCarPic=MarketCarPic.builder()
-                    .photoId(0)
-                    .announcementId(announcementId)
+                    //.photoId(0)
+                    //.announcementId(announcementId)
                     .photo(image.getBytes())
                     .marketCar(marketCar)
                     .build();
