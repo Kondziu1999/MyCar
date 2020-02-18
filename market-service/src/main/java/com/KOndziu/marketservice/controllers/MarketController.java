@@ -13,10 +13,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +40,6 @@ public class MarketController {
         this.marketCarPicRepo = marketCarPicRepo;
         this.marketCarPicService = marketCarPicService;
     }
-
     @GetMapping("/{announcementId}")
     public MarketCarDto getMarketCar(HttpServletRequest request,  @PathVariable Integer announcementId){
         Optional<MarketCar> marketCarOptional=marketCarRepo.findById(announcementId);
@@ -51,7 +55,6 @@ public class MarketController {
         }).collect(Collectors.toSet());
 
         return  getMarketCarDto(marketCar,marketCarPicsURLs);
-
     }
     @PostMapping("/add")
     public String addMarketCar(String marketCarDtoString, @RequestParam("image") MultipartFile file) throws JsonProcessingException {
@@ -74,6 +77,27 @@ public class MarketController {
         marketCarRepo.save(savedMarketCar);
 
         return "added";
+    }
+
+    //controller to download resource
+    @GetMapping("/downloadFile/{fileId}")
+    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Integer fileId) {
+        Optional<MarketCarPic> marketCarPic=marketCarPicRepo.findById(fileId);
+
+        return marketCarPic
+                .map(pic -> {
+                    return ResponseEntity.ok()
+                            .contentType(MediaType.parseMediaType(String.valueOf((MediaType.IMAGE_JPEG_VALUE))))
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pic.getPhotoId()+ "\".jpg")
+                            .body(new ByteArrayResource(pic.getPhoto()));
+                }).orElse(ResponseEntity.noContent().headers(HttpHeaders.EMPTY).build());
+
+    }
+    @GetMapping("/find")
+    public List<MarketCarDto> findCarByCriteria(@RequestBody MarketCarDto marketCarDto){
+
+
+
     }
 
     private MarketCarDto getMarketCarDto(MarketCar marketCar,Set<String> marketCarPicsURLs){
