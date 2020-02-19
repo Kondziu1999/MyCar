@@ -1,15 +1,15 @@
 package com.KOndziu.marketservice.controllers;
 
 
+import com.KOndziu.marketservice.dao.IMarketCarDAO;
 import com.KOndziu.marketservice.modules.*;
 
 import com.KOndziu.marketservice.repositories.MarketCarPicRepo;
 import com.KOndziu.marketservice.repositories.MarketCarRepo;
 import com.KOndziu.marketservice.repositories.UserRepository;
 import com.KOndziu.marketservice.services.MarketCarPicService;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.KOndziu.marketservice.specifications.MarketCarSpecification;
+import com.KOndziu.marketservice.specifications.SearchCriteria;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -23,9 +23,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -36,13 +39,15 @@ public class MarketController {
     private final MarketCarPicRepo marketCarPicRepo;
     private final MarketCarPicService marketCarPicService;
     private final UserRepository userRepository;
+    private IMarketCarDAO marketCarDAO; // simple JPA repo is not enough for searching in this particular task
 
     @Autowired
-    public MarketController(MarketCarRepo marketCarRepo, MarketCarPicRepo marketCarPicRepo, MarketCarPicService marketCarPicService, UserRepository userRepository) {
+    public MarketController(MarketCarRepo marketCarRepo, MarketCarPicRepo marketCarPicRepo, MarketCarPicService marketCarPicService, UserRepository userRepository, IMarketCarDAO marketCarDAO) {
         this.marketCarRepo = marketCarRepo;
         this.marketCarPicRepo = marketCarPicRepo;
         this.marketCarPicService = marketCarPicService;
         this.userRepository = userRepository;
+        this.marketCarDAO = marketCarDAO;
     }
 
     @GetMapping("")
@@ -123,9 +128,35 @@ public class MarketController {
 
     }
     @GetMapping("/find")
-    public List<MarketCarDto> findCarByCriteria(@RequestBody MarketCarDto marketCarDto){
+    public List<MarketCarDto> findCarByCriteria(){
+        MarketCarSpecification spec=new MarketCarSpecification(new SearchCriteria("state",":","nowy"));
 
-        return null;
+        List<MarketCar> marketCars=marketCarRepo.findAll(spec);
+
+
+
+
+
+
+        return  marketCars.stream()
+                .map(car -> getMarketCarDto(car,null))
+                .collect(Collectors.toList());
+    }
+    @GetMapping("/search")
+    public List<MarketCarDto> searchMarketCars(@RequestParam(value = "search",required = false) String search){
+        List<SearchCriteria> params=new ArrayList<>();
+        if(search!=null){
+            Pattern pattern=Pattern.compile( "(\\w+?)(:|<|>)(\\w+?),");
+            Matcher matcher=pattern.matcher(search + ",");
+            //split search params into key operation value
+            while (matcher.find()){
+                params.add(new SearchCriteria(matcher.group(1)
+                        ,matcher.group(2),matcher.group(3)));
+            }
+        }
+        return marketCarDAO.searchMarketCar(params).stream()
+                .map(car -> getMarketCarDto(car,null))
+                .collect(Collectors.toList());
     }
 
     private MarketCarDto getMarketCarDto(MarketCar marketCar,Set<String> marketCarPicsURLs){
