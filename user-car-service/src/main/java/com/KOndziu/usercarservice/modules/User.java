@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,13 +23,19 @@ public class User {
     @Column(name = "second_name")
     private String secondName;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id")
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private UserIdentities userIdentities;
 
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<FollowCar> followCarList;
+    private Set<FollowCar> followCarList=new HashSet<>();
 
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<MarketCar> marketCars=new HashSet<>();
+
+    @OneToMany(mappedBy = "user",fetch =FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<TrackCar> trackCars=new HashSet<>();
+
+    public void  addTrackCar(TrackCar trackCar){trackCars.add(trackCar);}
     public void addFollowCar(FollowCar followCar){
         followCarList.add(followCar);
     }

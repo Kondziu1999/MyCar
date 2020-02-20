@@ -99,6 +99,7 @@ public class MarketController {
                 .registerModule(new JavaTimeModule())
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false)
                 .readValue(marketCarDtoString,MarketCarDto.class);
+
         //Convert DTO to normal entity
         MarketCar marketCar=getMarketCar(marketCarDto);
         //TODO   handle this optional

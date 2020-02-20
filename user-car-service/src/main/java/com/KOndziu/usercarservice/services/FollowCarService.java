@@ -33,7 +33,7 @@ public class FollowCarService {
                     .carType(followCar.getCarType())
                     .color(followCar.getColor())
                     .mark(followCar.getColor())
-                    .userId(followCar.getUserId())
+                   // .userId(followCar.getUserId())
                     .image(carImage.getBytes())
                     .build();
 
