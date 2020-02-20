@@ -2,6 +2,8 @@ package com.KOndziu.marketservice.controllers;
 
 
 import com.KOndziu.marketservice.dao.IMarketCarDAO;
+import com.KOndziu.marketservice.dao.MarketCarDto;
+import com.KOndziu.marketservice.dao.MarketDto;
 import com.KOndziu.marketservice.modules.*;
 
 import com.KOndziu.marketservice.repositories.MarketCarPicRepo;

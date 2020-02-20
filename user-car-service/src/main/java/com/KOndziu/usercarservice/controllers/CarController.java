@@ -10,10 +10,12 @@ import com.KOndziu.usercarservice.repos.TrackCarRepository;
 import com.KOndziu.usercarservice.repos.UserRepository;
 import com.KOndziu.usercarservice.services.FollowCarService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +24,16 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RefreshScope
 @RequestMapping("/cars")
 public class CarController {
+    //TODO change it when eureka will be introduced
+    @Value("${market-service.port}")
+    private String marketServicePort;
+
     private final FollowCarService followCarService;
     private final UserRepository userRepository;
     private final TrackCarRepository trackCarRepository;
@@ -62,9 +69,24 @@ public class CarController {
         }
     }
     @GetMapping("/track/{userId}")
-    public List<TrackCarDTO> getTrackCars(@PathVariable Integer userId){
-        //TODO
-        return null;
+    public ResponseEntity<Set<TrackCarDTO>> getTrackCars(@PathVariable Integer userId){
+        Optional<User> userOptional=userRepository.findById(userId);
+        User user;
+        if(userOptional.isPresent()){
+            user=userOptional.get();
+
+            Set<TrackCarDTO> trackCars=user.getTrackCars().stream()
+                    .map(car-> new TrackCarDTO(car.getTrackId(),
+                            "http://localhost:"+marketServicePort+"/market/"+car.getAnnouncementId()))
+                    .collect(Collectors.toSet());
+
+            return ResponseEntity.ok().body(trackCars);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
+        // market/{id}
+
     }
 
 

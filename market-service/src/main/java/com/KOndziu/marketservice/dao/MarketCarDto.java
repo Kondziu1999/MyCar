@@ -1,4 +1,4 @@
-package com.KOndziu.marketservice.modules;
+package com.KOndziu.marketservice.dao;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.time.LocalDate;

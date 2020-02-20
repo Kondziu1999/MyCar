@@ -1,4 +1,4 @@
-package com.KOndziu.marketservice.modules;
+package com.KOndziu.marketservice.dao;
 
 import lombok.*;
 

@@ -2,6 +2,7 @@ package com.KOndziu.usercarservice.controllers;
 
 
 import com.KOndziu.usercarservice.modules.User;
+import com.KOndziu.usercarservice.payload.UserDTO;
 import com.KOndziu.usercarservice.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -20,19 +21,25 @@ public class UserController {
 
     @Value("${my.app}")
     private String app;
+    @Value("${market-service.port")
+    private String marketServicePort;
 
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/test")
-    public String getTest(){
-        return app;
-    }
+
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable Integer userId){
+    public UserDTO getUserById(@PathVariable Integer userId){
         Optional<User> userOptional=userRepository.findById(userId);
-        return userOptional.orElseGet(emptyUserSupp);
+        User user=userOptional.orElseGet(emptyUserSupp);
+
+        return new UserDTO(user.getId(),user.getName(),user.getSecondName(),
+                "http://localhost:8080/users/identities"+user.getId(),
+                "http://localhost:8080/cars/"+user.getId(),
+                "http://localhost:"+marketServicePort+"/market/"+user.getId()
+                );
+
     }
     @GetMapping("/find/{name}/{surname}")
     public User findUser(@PathVariable String name,@PathVariable String surname){
@@ -43,6 +50,9 @@ public class UserController {
     @PostMapping("/add")
     public User addUser(@RequestBody User user){
         User updatedUser=userRepository.save(user);
+
+
+
         return updatedUser;
     }
 }
