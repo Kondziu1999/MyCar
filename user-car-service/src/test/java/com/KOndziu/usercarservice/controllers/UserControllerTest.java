@@ -1,5 +1,6 @@
 package com.KOndziu.usercarservice.controllers;
 
+import com.KOndziu.usercarservice.modules.TrackCar;
 import com.KOndziu.usercarservice.modules.User;
 import com.KOndziu.usercarservice.payload.UserDTO;
 import com.KOndziu.usercarservice.repos.UserRepository;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,9 +26,12 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,6 +49,8 @@ class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserController userController;
 
     @Test
     void getUserByIdTest() throws Exception {
@@ -82,4 +89,7 @@ class UserControllerTest {
                     .content(jsonUserDTO))
                 .andExpect(content().string("User already exists"));
     }
+
+
+
 }

@@ -1,6 +1,8 @@
 package com.KOndziu.usercarservice.controllers;
 
 
+import com.KOndziu.usercarservice.exceptions.UserAlreadyExists;
+import com.KOndziu.usercarservice.exceptions.UserNotFoundException;
 import com.KOndziu.usercarservice.modules.User;
 import com.KOndziu.usercarservice.payload.UserDTO;
 import com.KOndziu.usercarservice.repos.UserRepository;
@@ -31,45 +33,32 @@ public class UserController {
 
 
     @GetMapping("/{userId}")
-    public UserDTO getUserById(@PathVariable Integer userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        User user = userOptional.orElseGet(emptyUserSupp);
-
-        return new UserDTO(user.getId(), user.getName(), user.getSecondName(),
-                "http://localhost:8080/users/identities" + user.getId(),
-                "http://localhost:8080/cars/" + user.getId(),
-                "http://localhost:" + marketServicePort + "/market/" + user.getId()
-        );
-
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        UserDTO userDTO=UserDTO.getDTO(user,marketServicePort);
+        return ResponseEntity.ok().body(userDTO);
     }
 
     @GetMapping("/find/{name}/{surname}")
-    public UserDTO findUser(@PathVariable String name, @PathVariable String surname) {
-        Optional<User> userOptional = userRepository.findByNameAndAndSecondName(name, surname);
-        User user = userOptional.orElseGet(emptyUserSupp);
+    public ResponseEntity<UserDTO> findUser(@PathVariable String name, @PathVariable String surname) {
+        User user = userRepository.findByNameAndAndSecondName(name, surname).orElseThrow(()->new UserNotFoundException(name,surname));
 
-        return new UserDTO(user.getId(), user.getName(), user.getSecondName(),
-                "http://localhost:8080/users/identities" + user.getId(),
-                "http://localhost:8080/cars/" + user.getId(),
-                "http://localhost:" + marketServicePort + "/market/" + user.getId()
-        );
+        UserDTO userDTO=UserDTO.getDTO(user,marketServicePort);
+        return ResponseEntity.ok().body(userDTO);
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@RequestBody UserDTO user1) {
         Optional<User> userOptional = userRepository.findByNameAndAndSecondName(user1.getName(), user1.getSecondName());
-
-        if (!userOptional.isPresent()) {
+        if (!userOptional.isPresent()) { //if no such user
             User user = userRepository.save(new User(user1.getName(), user1.getSecondName()));
-
-            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getSecondName(),
-                    "http://localhost:8080/users/identities" + user.getId(),
-                    "http://localhost:8080/cars/" + user.getId(),
-                    "http://localhost:" + marketServicePort + "/market/" + user.getId()
-            );
+            UserDTO userDTO=UserDTO.getDTO(user,marketServicePort);
             return ResponseEntity.ok().body(userDTO);
-        } else {
-            return ResponseEntity.badRequest().body("User already exists");
+        }
+        //if user already exists
+        else {
+            throw new UserAlreadyExists(userOptional.get());
+           // return ResponseEntity.badRequest().body("User already exists");
         }
     }
 }

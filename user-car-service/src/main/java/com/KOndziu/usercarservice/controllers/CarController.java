@@ -1,6 +1,7 @@
 package com.KOndziu.usercarservice.controllers;
 
 
+import com.KOndziu.usercarservice.exceptions.UserNotFoundException;
 import com.KOndziu.usercarservice.modules.FollowCar;
 import com.KOndziu.usercarservice.payload.FollowCarDto;
 import com.KOndziu.usercarservice.modules.TrackCar;
@@ -48,43 +49,34 @@ public class CarController {
     @PostMapping("/addTrack")
     public String addFollowCar(@RequestParam Integer announcementId,@RequestParam Integer userId){
         TrackCar trackCar=new TrackCar(announcementId);
-        Optional<User> userOptional=userRepository.findById(userId);
+        User user=userRepository.findById(userId).orElseThrow(()->new UserNotFoundException(userId));
         Set<TrackCar> trackCars;
         //check if passed user exists
-        if(userOptional.isPresent()){
-            User user=userOptional.get();
-            trackCars=user.getTrackCars();
-            //check if user have got such announcement tracked
-            boolean contain=
-                    trackCars.stream()
-                            .anyMatch(trackCar1 -> trackCar1.getAnnouncementId().equals(announcementId));
-            if(!contain){
-                trackCar.setUser(user);
-                trackCarRepository.save(trackCar);
-            }
-            return (!contain) ? "track added" : "track already present";
+
+        trackCars=user.getTrackCars();
+        //check if user have got such announcement tracked
+        boolean contain=
+                trackCars.stream()
+                        .anyMatch(trackCar1 -> trackCar1.getAnnouncementId().equals(announcementId));
+        if(!contain){
+            trackCar.setUser(user);
+            trackCarRepository.save(trackCar);
         }
-        else{
-            return "user not found";
-        }
+        return (!contain) ? "track added" : "track already present";
+
     }
     @GetMapping("/track/{userId}")
     public ResponseEntity<Set<TrackCarDTO>> getTrackCars(@PathVariable Integer userId){
-        Optional<User> userOptional=userRepository.findById(userId);
-        User user;
-        if(userOptional.isPresent()){
-            user=userOptional.get();
+        User user=userRepository.findById(userId).orElseThrow(()->new UserNotFoundException(userId));
 
-            Set<TrackCarDTO> trackCars=user.getTrackCars().stream()
-                    .map(car-> new TrackCarDTO(car.getTrackId(),
-                            "http://localhost:"+marketServicePort+"/market/"+car.getAnnouncementId()))
-                    .collect(Collectors.toSet());
 
-            return ResponseEntity.ok().body(trackCars);
-        }
-        else {
-            return ResponseEntity.notFound().build();
-        }
+        Set<TrackCarDTO> trackCars=user.getTrackCars().stream()
+                .map(car-> new TrackCarDTO(car.getTrackId(),
+                        "http://localhost:"+marketServicePort+"/market/"+car.getAnnouncementId()))
+                .collect(Collectors.toSet());
+
+        return ResponseEntity.ok().body(trackCars);
+
         // market/{id}
 
     }
@@ -133,13 +125,14 @@ public class CarController {
                 +request.getServerPort()
                 +"/cars/downloadFile/"+carId;
 
-        return FollowCarDto.builder()
-                .carId(followCar.getCarId())
-                .carType(followCar.getCarType())
-                .color(followCar.getColor())
-                .mark(followCar.getMark())
-                .imageURI(downloadUrl)
-                .build();
+        return FollowCarDto.getDTO(followCar,downloadUrl);
+//        return FollowCarDto.builder()
+//                .carId(followCar.getCarId())
+//                .carType(followCar.getCarType())
+//                .color(followCar.getColor())
+//                .mark(followCar.getMark())
+//                .imageURI(downloadUrl)
+//                .build();
     }
 
     @GetMapping("/downloadFile/{fileId}")

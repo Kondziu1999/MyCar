@@ -58,7 +58,7 @@ public class MarketController {
         List<MarketCar> marketCars=marketCarRepo.findAll();
 
         List<MarketCarDto> marketCarDtos=marketCars.stream().map(car ->{
-            return getMarketCarDto(car,null);
+            return MarketCarDto.getDTO(car,null);
         }).collect(Collectors.toList());
 
         return marketCarDtos.stream().map(dto->{
@@ -92,7 +92,7 @@ public class MarketController {
                     + "/market/downloadFile/" + pic.getPhotoId();
         }).collect(Collectors.toSet());
 
-        return  getMarketCarDto(marketCar,marketCarPicsURLs);
+        return  MarketCarDto.getDTO(marketCar,marketCarPicsURLs);
     }
     @PostMapping("/add")
     public String addMarketCar(String marketCarDtoString, @RequestParam("image") MultipartFile file) throws IOException {
@@ -103,7 +103,7 @@ public class MarketController {
                 .readValue(marketCarDtoString,MarketCarDto.class);
 
         //Convert DTO to normal entity
-        MarketCar marketCar=getMarketCar(marketCarDto);
+        MarketCar marketCar=MarketCarDto.getMarket(marketCarDto);
         //TODO   handle this optional
         Optional<User> user=userRepository.findById(marketCarDto.getUserId());
 
@@ -137,12 +137,8 @@ public class MarketController {
         List<MarketCar> marketCars=marketCarRepo.findAll(spec);
 
 
-
-
-
-
         return  marketCars.stream()
-                .map(car -> getMarketCarDto(car,null))
+                .map(car -> MarketCarDto.getDTO(car,null))
                 .collect(Collectors.toList());
     }
     @GetMapping("/search")
@@ -158,49 +154,9 @@ public class MarketController {
             }
         }
         return marketCarDAO.searchMarketCar(params).stream()
-                .map(car -> getMarketCarDto(car,null))
+                .map(car -> MarketCarDto.getDTO(car,null))
                 .collect(Collectors.toList());
     }
 
-    private MarketCarDto getMarketCarDto(MarketCar marketCar,Set<String> marketCarPicsURLs){
-        return  MarketCarDto.builder()
-                .annoId(marketCar.getAnnoId())
-                .carType(marketCar.getCarType())
-                //.userId(marketCar.getUserId())
-                .color(marketCar.getColor())
-                .engForce(marketCar.getEngForce())
-                .engSize(marketCar.getEngSize())
-                .locality(marketCar.getLocality())
-                .mileage(marketCar.getMileage())
-                .picURLs(marketCarPicsURLs)
-                .origin(marketCar.getOrigin())
-                .price(marketCar.getPrice())
-                .prodDate(marketCar.getProdDate())
-                .province(marketCar.getProvince())
-                .seats(marketCar.getSeats())
-                .state(marketCar.getState())
-                .build();
-    }
-
-    //convert dto to entity(without pics)
-    private MarketCar getMarketCar(MarketCarDto marketCarDto){
-        return MarketCar.builder()
-                .annoId(marketCarDto.getAnnoId())
-                .carType(marketCarDto.getCarType())
-                //.userId(marketCarDto.getUserId())
-                .color(marketCarDto.getColor())
-                .engForce(marketCarDto.getEngForce())
-                .engSize(marketCarDto.getEngSize())
-                .locality(marketCarDto.getLocality())
-                .mileage(marketCarDto.getMileage())
-                .origin(marketCarDto.getOrigin())
-                .price(marketCarDto.getPrice())
-                .prodDate(marketCarDto.getProdDate())
-                .province(marketCarDto.getProvince())
-                .seats(marketCarDto.getSeats())
-                .state(marketCarDto.getState())
-                // here could be pics
-                .build();
-    }
-
+    
 }
