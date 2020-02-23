@@ -148,7 +148,9 @@ public class MarketController {
         MarketCarSpecification spec=new MarketCarSpecification(new SearchCriteria("state",":","nowy"));
 
         List<MarketCar> marketCars=marketCarRepo.findAll(spec);
-
+        if(marketCars.isEmpty()){
+            throw new MarketCarNotFoundException("No items for given parameters");
+        }
 
         return  marketCars.stream()
                 .map(car -> MarketCarDto.getDTO(car,null))

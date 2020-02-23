@@ -6,4 +6,7 @@ public class MarketCarNotFoundException extends RuntimeException {
     public MarketCarNotFoundException(Integer announcementId){
         super(ERROR_MESSAGE+announcementId);
     }
+    public MarketCarNotFoundException(String msg){
+        super(msg);
+    }
 }
