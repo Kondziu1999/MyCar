@@ -4,6 +4,11 @@ package com.KOndziu.marketservice.controllers;
 import com.KOndziu.marketservice.dao.IMarketCarDAO;
 import com.KOndziu.marketservice.dao.MarketCarDto;
 import com.KOndziu.marketservice.dao.MarketDto;
+
+
+import com.KOndziu.marketservice.exception.MarketCarNotFoundException;
+import com.KOndziu.marketservice.exception.MarketDtoParsingException;
+import com.KOndziu.marketservice.exception.UserNotFoundException;
 import com.KOndziu.marketservice.modules.*;
 
 import com.KOndziu.marketservice.repositories.MarketCarPicRepo;
@@ -12,6 +17,8 @@ import com.KOndziu.marketservice.repositories.UserRepository;
 import com.KOndziu.marketservice.services.MarketCarPicService;
 import com.KOndziu.marketservice.specifications.MarketCarSpecification;
 import com.KOndziu.marketservice.specifications.SearchCriteria;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -78,9 +85,7 @@ public class MarketController {
     }
     @GetMapping("/{announcementId}")
     public MarketCarDto getMarketCar(HttpServletRequest request,  @PathVariable Integer announcementId){
-        //TODO add optional handling
-        Optional<MarketCar> marketCarOptional=marketCarRepo.findById(announcementId);
-        MarketCar marketCar=marketCarOptional.get();
+        MarketCar marketCar=marketCarRepo.findById(announcementId).orElseThrow(()-> new MarketCarNotFoundException(announcementId));
 
         //convert pictures to URLs
         Set<MarketCarPic> marketCarPics=marketCar.getMarketCarPics();
@@ -97,19 +102,27 @@ public class MarketController {
     @PostMapping("/add")
     public String addMarketCar(String marketCarDtoString, @RequestParam("image") MultipartFile file) throws IOException {
         //map dtoString to object
-        MarketCarDto marketCarDto=new ObjectMapper()
+        MarketCarDto marketCarDto;
+        try {
+            marketCarDto = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false)
-                .readValue(marketCarDtoString,MarketCarDto.class);
-
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .readValue(marketCarDtoString, MarketCarDto.class);
+        }
+        catch (JsonMappingException ex){
+            throw new MarketDtoParsingException(ex.getMessage());
+        }
+        catch (JsonProcessingException ex){
+            throw new MarketDtoParsingException(ex.getMessage());
+        }
         //Convert DTO to normal entity
         MarketCar marketCar=MarketCarDto.getMarket(marketCarDto);
-        //TODO   handle this optional
-        Optional<User> user=userRepository.findById(marketCarDto.getUserId());
+        //find user
+        User user=userRepository.findById(marketCarDto.getUserId()).orElseThrow(()->new UserNotFoundException(marketCarDto.getUserId()));
 
         MarketCarPic marketCarPic=MarketCarPic.builder().marketCar(marketCar).photo(file.getBytes()).build();
         marketCar.addMarketCarPic(marketCarPic);
-        marketCar.setUser(user.get());
+        marketCar.setUser(user);
 
         marketCarRepo.save(marketCar);
 
