@@ -48,6 +48,11 @@ public class MarketCar {
     private Integer seats;
     private String color;
     private String origin;
+    private String mark;
+    private String model;
+
+    @Column(name = "fuel_type")
+    private String fuelType;
 
     @OneToMany(mappedBy = "marketCar", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     public final Set<MarketCarPic> marketCarPics=new HashSet<>();

@@ -28,6 +28,9 @@ public class MarketCarDto {
     private String color;
     private String origin;
     private Set<String> picURLs;
+    private String mark;
+    private String model;
+    private String fuelType;
 
     public static MarketCar getMarket(MarketCarDto marketCarDto){
         return MarketCar.builder()
@@ -45,6 +48,9 @@ public class MarketCarDto {
                 .province(marketCarDto.getProvince())
                 .seats(marketCarDto.getSeats())
                 .state(marketCarDto.getState())
+                .fuelType(marketCarDto.getFuelType())
+                .mark(marketCarDto.getMark())
+                .model(marketCarDto.getModel())
                 // here could be pics
                 .build();
     }
@@ -65,6 +71,9 @@ public class MarketCarDto {
                 .province(marketCar.getProvince())
                 .seats(marketCar.getSeats())
                 .state(marketCar.getState())
+                .fuelType(marketCar.getFuelType())
+                .mark(marketCar.getMark())
+                .model(marketCar.getModel())
                 .build();
     }
 

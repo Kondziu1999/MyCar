@@ -36,6 +36,9 @@ public class User {
     @OneToMany(mappedBy = "user",fetch =FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<TrackCar> trackCars=new HashSet<>();
 
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Set<UserPreference> userPreferences=new HashSet<>();
+
     public void  addTrackCar(TrackCar trackCar){trackCars.add(trackCar);}
     public void addFollowCar(FollowCar followCar){
         followCarList.add(followCar);

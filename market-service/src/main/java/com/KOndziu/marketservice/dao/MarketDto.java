@@ -20,6 +20,9 @@ public class MarketDto {
   private String state;
   private Double price;
   private String endpoint;
+  private String mark;
+  private String model;
+  private String fuelType;
 
 
 

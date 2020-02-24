@@ -4,10 +4,14 @@ package com.KOndziu.usercarservice.controllers;
 import com.KOndziu.usercarservice.exceptions.UserAlreadyExists;
 import com.KOndziu.usercarservice.exceptions.UserNotFoundException;
 import com.KOndziu.usercarservice.modules.User;
+import com.KOndziu.usercarservice.modules.UserPreference;
 import com.KOndziu.usercarservice.payload.UserDTO;
+import com.KOndziu.usercarservice.payload.UserPreferenceDTO;
+import com.KOndziu.usercarservice.repos.UserPreferencesRepository;
 import com.KOndziu.usercarservice.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +24,7 @@ import java.util.function.Supplier;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserPreferencesRepository userPreferencesRepository;
     private Supplier<User> emptyUserSupp = () -> new User("not found", "not found");
 
     @Value("${my.app}")
@@ -27,8 +32,9 @@ public class UserController {
     @Value("${market-service.port}")
     private String marketServicePort;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, UserPreferencesRepository userPreferencesRepository) {
         this.userRepository = userRepository;
+        this.userPreferencesRepository = userPreferencesRepository;
     }
 
 
@@ -60,5 +66,14 @@ public class UserController {
             throw new UserAlreadyExists(userOptional.get());
            // return ResponseEntity.badRequest().body("User already exists");
         }
+    }
+    @PostMapping("/preferences/add")
+    public ResponseEntity<String> addUserPreference(@RequestBody UserPreferenceDTO userPreferenceDTO){
+        User user=userRepository.findById(userPreferenceDTO.getUserId())
+                .orElseThrow(()->new UserNotFoundException(userPreferenceDTO.getUserId()));
+
+        UserPreference userPreference=UserPreferenceDTO.convertFromDTO(userPreferenceDTO,user);
+        userPreferencesRepository.save(userPreference);
+        return new ResponseEntity<>("preferences updated", HttpStatus.OK);
     }
 }
