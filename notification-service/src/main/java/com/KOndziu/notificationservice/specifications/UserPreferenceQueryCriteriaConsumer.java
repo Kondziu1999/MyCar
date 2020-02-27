@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDate;
 import java.util.function.Consumer;
 
 
@@ -23,8 +24,14 @@ public class UserPreferenceQueryCriteriaConsumer implements Consumer<SearchCrite
     @Override
     public void accept(SearchCriteria param) {
         if (param.getOperation().equalsIgnoreCase(">")) {
-            predicate = builder.and(predicate, builder
-                    .greaterThanOrEqualTo(r.get(param.getKey()), param.getValue().toString()));
+            if(r.get(param.getKey()).getJavaType()== LocalDate.class){
+                predicate=builder.and(predicate,builder
+                        .greaterThanOrEqualTo(r.<LocalDate>get(param.getKey()),LocalDate.parse(param.getValue().toString())));
+            }
+            else {
+                predicate = builder.and(predicate, builder
+                        .greaterThanOrEqualTo(r.get(param.getKey()), param.getValue().toString()));
+            }
         } else if (param.getOperation().equalsIgnoreCase("<")) {
             predicate = builder.and(predicate, builder.lessThanOrEqualTo(
                     r.get(param.getKey()), param.getValue().toString()));

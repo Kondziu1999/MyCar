@@ -56,10 +56,16 @@ public class UserPreferenceService {
                (marketCarDto.getProvince()!=null) ? "province:"+marketCarDto.getProvince() : "",
                (marketCarDto.getState()!=null) ? "state:"+marketCarDto.getState() : "",
                (marketCarDto.getSeats()!=null) ? "seats:"+marketCarDto.getSeats().toString() : "",
-               (marketCarDto.getEngForce()!=null) ? "engForce:"+marketCarDto.getEngForce().toString() : "",
-               (marketCarDto.getPrice()!=null) ? "priceTo<"+marketCarDto.getPrice().toString() : "",
-               (marketCarDto.getMileage()!=null) ? "mileageTo<"+marketCarDto.getMileage().toString() : "",
-               (marketCarDto.getEngSize()!=null) ? "engSize<"+marketCarDto.getEngSize().toString() : ""
+               (marketCarDto.getEngForce()!=null) ? "engForceTo>"+marketCarDto.getEngForce().toString() : "",
+               (marketCarDto.getEngForce()!=null) ? "engForceFrom<"+marketCarDto.getEngForce().toString() : "",
+               (marketCarDto.getPrice()!=null) ? "priceTo>"+marketCarDto.getPrice().toString() : "",
+               (marketCarDto.getPrice()!=null) ? "priceFrom<"+marketCarDto.getPrice().toString() : "",
+               (marketCarDto.getMileage()!=null) ? "mileageTo>"+marketCarDto.getMileage().toString() : "",
+               (marketCarDto.getMileage()!=null) ? "mileageFrom<"+marketCarDto.getMileage().toString() : "",
+               (marketCarDto.getEngSize()!=null) ? "engSizeTo>"+marketCarDto.getEngSize().toString() : "",
+               (marketCarDto.getEngSize()!=null) ? "engSizeFrom<"+marketCarDto.getEngSize().toString() : "",
+               (marketCarDto.getProdDate()!=null) ? "prodDateTo>"+marketCarDto.getProdDate().toString() : "",
+               (marketCarDto.getProdDate()!=null) ? "prodDateFrom<"+marketCarDto.getProdDate().toString() : ""
                );
 
        List<String> pureParams=params.stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
