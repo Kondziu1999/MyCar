@@ -20,8 +20,9 @@ public class NotificationService {
     private UserClient userClient;
 
     @Autowired
-    public NotificationService(JavaMailSender javaMailSender) {
+    public NotificationService(JavaMailSender javaMailSender, UserClient userClient) {
         this.javaMailSender = javaMailSender;
+        this.userClient = userClient;
     }
 
     public String prepareMsgForUser(UserPreference userPreference, MarketCarDto marketCarDto){

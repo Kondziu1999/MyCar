@@ -31,7 +31,7 @@ public class NotificationController {
         List<UserPreference> userPreferences=userPreferenceService.findPreferences(params);
         userPreferences.stream().forEach(userPreference -> {
             String msg=notificationService.prepareMsgForUser(userPreference,marketCarDto);
-            notificationService.sendMail("susmekk@gmail.com","nowe auto",msg,true);
+            //notificationService.sendMail("susmekk@gmail.com","nowe auto",msg,true);
         });
 
         return new ResponseEntity<>(String.valueOf("new market car recived"), HttpStatus.OK);

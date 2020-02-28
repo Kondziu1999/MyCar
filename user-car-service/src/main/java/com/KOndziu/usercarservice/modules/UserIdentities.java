@@ -1,6 +1,7 @@
 package com.KOndziu.usercarservice.modules;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import javax.persistence.*;
 public class UserIdentities {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "postal_code")
     private String postalCode;

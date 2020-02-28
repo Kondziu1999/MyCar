@@ -4,9 +4,12 @@ package com.KOndziu.usercarservice.controllers;
 import com.KOndziu.usercarservice.exceptions.UserAlreadyExists;
 import com.KOndziu.usercarservice.exceptions.UserNotFoundException;
 import com.KOndziu.usercarservice.modules.User;
+import com.KOndziu.usercarservice.modules.UserIdentities;
 import com.KOndziu.usercarservice.modules.UserPreference;
 import com.KOndziu.usercarservice.payload.UserDTO;
+import com.KOndziu.usercarservice.payload.UserIdentitiesDto;
 import com.KOndziu.usercarservice.payload.UserPreferenceDTO;
+import com.KOndziu.usercarservice.repos.UserIdentitiesRepository;
 import com.KOndziu.usercarservice.repos.UserPreferencesRepository;
 import com.KOndziu.usercarservice.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +28,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserPreferencesRepository userPreferencesRepository;
+    private final UserIdentitiesRepository userIdentitiesRepository;
     private Supplier<User> emptyUserSupp = () -> new User("not found", "not found");
 
     @Value("${my.app}")
@@ -32,9 +36,10 @@ public class UserController {
     @Value("${market-service.port}")
     private String marketServicePort;
 
-    public UserController(UserRepository userRepository, UserPreferencesRepository userPreferencesRepository) {
+    public UserController(UserRepository userRepository, UserPreferencesRepository userPreferencesRepository, UserIdentitiesRepository userIdentitiesRepository) {
         this.userRepository = userRepository;
         this.userPreferencesRepository = userPreferencesRepository;
+        this.userIdentitiesRepository = userIdentitiesRepository;
     }
 
 
@@ -76,4 +81,21 @@ public class UserController {
         userPreferencesRepository.save(userPreference);
         return new ResponseEntity<>("preferences updated", HttpStatus.OK);
     }
+
+    @PostMapping("/identities/add")
+    public ResponseEntity<String> addUserIdentities(@RequestBody UserIdentitiesDto userIdentitiesDto){
+        User user=userRepository.findById(userIdentitiesDto.getUserId())
+                .orElseThrow(()->new UserNotFoundException(userIdentitiesDto.getUserId()));
+
+        UserIdentities userIdentities=new UserIdentities();
+        userIdentities.setUser(user);
+        userIdentities.setEmail(userIdentitiesDto.getEmail());
+        userIdentities.setHouseNr(userIdentitiesDto.getHouseNr());
+        userIdentities.setLocality(userIdentitiesDto.getLocality());
+        userIdentities.setPostalCode(userIdentitiesDto.getPostalCode());
+        userIdentitiesRepository.save(userIdentities);
+
+        return new ResponseEntity<>("identities updated", HttpStatus.OK);
+    }
+
 }
