@@ -1,4 +1,4 @@
-package com.KOndziu.researchserver.modelCategories;
+package com.KOndziu.researchserver.allegroDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Parent {
-    Integer id;
+public class CarCategory {
+
+    private Integer id;
+    private  String name;
+    private Integer count;
 }

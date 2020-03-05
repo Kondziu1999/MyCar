@@ -25,7 +25,9 @@ public class UserPreferenceService {
 //    public UserPreferenceService(UserPreferenceDAO userPreferenceDAO) {
 //        this.userPreferenceDAO = userPreferenceDAO;
 //    }
-
+    public List<UserPreference> findAll(){
+        return userPreferenceDAO.findAll();
+    }
 
     //call user preference dao to get appropriate UserPreferences
     public List<UserPreference> findPreferences(String search) {

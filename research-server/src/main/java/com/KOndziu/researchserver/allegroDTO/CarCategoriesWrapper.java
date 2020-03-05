@@ -1,4 +1,4 @@
-package com.KOndziu.researchserver.modelCategories;
+package com.KOndziu.researchserver.allegroDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,8 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Category {
-
-    public List<Car> carList;
+public class CarCategoriesWrapper {
+    //according to allegro api nomenclature
+    List<CarCategory> subcategories;
 }
-

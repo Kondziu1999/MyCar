@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -35,6 +36,12 @@ public class UserPreferenceDAO implements IUserPreferenceDAO {
         List<UserPreference> result=entityManager.createQuery(query).getResultList();
         return result;
 
+
+    }
+    @Override
+    public List<UserPreference> findAll(){
+        String query="Select * from user_preferences";
+        return entityManager.createQuery(query).getResultList();
 
     }
 }

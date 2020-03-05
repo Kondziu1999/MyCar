@@ -36,4 +36,13 @@ public class NotificationController {
 
         return new ResponseEntity<>(String.valueOf("new market car recived"), HttpStatus.OK);
     }
+    @PostMapping("/send")
+    public ResponseEntity<String> checkForNews(){
+        List<UserPreference> userPreferences=userPreferenceService.findAll();
+
+
+        //TODO add sending request to research service in order to get info if the new car meeting the requirements
+        // of userPreference has occurred
+        return null;
+    }
 }
