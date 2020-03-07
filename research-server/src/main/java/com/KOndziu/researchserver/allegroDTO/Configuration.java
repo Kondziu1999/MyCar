@@ -9,4 +9,9 @@ public class Configuration {
     ResponseWrapper getFilterWrapper(){
         return new ResponseWrapper();
     }
+
+    @Bean
+    HashFilters getHashFilters(){
+        return new HashFilters();
+    }
 }
