@@ -1,4 +1,4 @@
-package com.KOndziu.researchserver.allegroDTO;
+package com.KOndziu.researchserver.allegroDTO.Filters;
 
 import org.springframework.context.annotation.Bean;
 

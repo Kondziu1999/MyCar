@@ -1,11 +1,9 @@
-package com.KOndziu.researchserver.allegroDTO;
+package com.KOndziu.researchserver.allegroDTO.Filters;
 
 import com.KOndziu.researchserver.DTO.UserPreferenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.Null;
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Service
@@ -24,11 +22,18 @@ public class AllegroQueryBuilder {
 
 
     //TODO change this awful function
-    public String compileToSearchString(UserPreferenceDTO userPreferenceDTO){
+    public String compileToSearchString(UserPreferenceDTO userPreferenceDTO,Optional<Integer> modelCategoryId){
         //TODO find particular model id
         StringBuilder stringBuilder=new StringBuilder();
         stringBuilder.append("?category.id=");
-        stringBuilder.append(getIdOfSearchMark(userPreferenceDTO.getMark()));
+        //if model is specified there is need to go down the search tree
+        if(modelCategoryId.isPresent()) {
+            stringBuilder.append(modelCategoryId.get());
+        }
+        //if model is not specified
+        else {
+            stringBuilder.append(getIdOfSearchMark(userPreferenceDTO.getMark()));
+        }
 
         List<String> filters= Arrays.asList(
         (userPreferenceDTO.getCarType()!=null)? getGivenParam("nadwozie",userPreferenceDTO.getCarType(),null) :"",
@@ -102,6 +107,7 @@ public class AllegroQueryBuilder {
 
         return carCategory.getId();
     }
+
 
 
 

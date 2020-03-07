@@ -1,4 +1,4 @@
-package com.KOndziu.researchserver.allegroDTO;
+package com.KOndziu.researchserver.allegroDTO.Filters;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +10,5 @@ import java.util.HashMap;
 @Setter
 @NoArgsConstructor
 public class HashFilters {
-
     HashMap<String,CarFilter> hashFilters=new HashMap<>();
 }
