@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -36,10 +37,10 @@ public class NotificationController {
 
         return new ResponseEntity<>(String.valueOf("new market car recived"), HttpStatus.OK);
     }
-    @PostMapping("/send")
+    @PostMapping("/news")
     public ResponseEntity<String> checkForNews(){
         List<UserPreference> userPreferences=userPreferenceService.findAll();
-
+        
 
         //TODO add sending request to research service in order to get info if the new car meeting the requirements
         // of userPreference has occurred
