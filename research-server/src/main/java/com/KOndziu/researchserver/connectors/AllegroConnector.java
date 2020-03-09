@@ -48,13 +48,8 @@ public class AllegroConnector {
 
     @GetMapping("/CarFilters")
     public ResponseWrapper getModelsCategories(){
-    RestTemplate restTemplate=new RestTemplate();
-    HttpHeaders headers=new HttpHeaders();
 
-    headers.add("Authorization","Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJhbGxlZ3JvX2FwaSJdLCJleHAiOjE1ODM2MTUwNDMsImp0aSI6ImNmOTRmYjgxLTIwMjgtNGI2My1iNGIyLTBiMDJkZWU5YTNlNiIsImNsaWVudF9pZCI6IjhjOTM0NGEyODE1NjQyZjBhMDU5NzdiZDNhOWJkZmQ3In0.s_kg3RQ7CDnQUJZgeolB-0JBfwNj0B4Wop5xDZ4m7b6_MOobZsfEOI5fhCuimU7h5h0-FzJptoZ9KZtUoBtBlaNS8Hv1a8g22oKOZo6xhY2bLtlv7WiLmzDAS3YlxAWgOT1s5Z6kOU-hEJBb8zClnmqKtFojd2g7IiUMFShTLCBr0vKlUSKLFG10bZsnWKtcVW_es0r-aDmHvPyDmcfE6DhoAtsiviM4YaOEgiQ-61UgHy4ELcBqcJSNVGqmD8HrGfZcKYc1Ed0GIgvCkx0Xd_Fuk3AEbX6Ifor0bn7dinTQb2fTU-gDwXqXSeTuDDe8x-W71OrPYQqmvFP4bxe-ow");
-    headers.add("Accept","application/vnd.allegro.public.v1+json");
-
-    HttpEntity entity=new HttpEntity(headers);
+    HttpEntity entity=getAllegroHttpEntity();
     ResponseEntity<ResponseWrapper> responseEntity=restTemplate.exchange("https://api.allegro.pl/offers/listing?category.id=4029",
             HttpMethod.GET, entity, ResponseWrapper.class);
     return responseEntity.getBody();
@@ -73,7 +68,7 @@ public class AllegroConnector {
             return new CarCategoriesWrapper();
     }
     @PostMapping("/offers")
-    public CarsWrapper getOffersForUser(@RequestBody UserPreferenceDTO userPreferenceDTO){
+    public ItemsWrapper getOffersForUser(@RequestBody UserPreferenceDTO userPreferenceDTO){
         //get mark id
         Integer categoryId=allegroQueryBuilder.getIdOfSearchMark(userPreferenceDTO.getMark());
         //get models
@@ -90,14 +85,14 @@ public class AllegroConnector {
 
         String filtersString=allegroQueryBuilder.compileToSearchString(userPreferenceDTO,modelCategoryIdOptional);
         ResponseEntity<ItemsWrapper> responseEntity=restTemplate.exchange(allegroOffersUri+filtersString,HttpMethod.GET,getAllegroHttpEntity(), ItemsWrapper.class);
-        return responseEntity.getBody().getItems();
+        return responseEntity.getBody();
     }
 
 
     public HttpEntity getAllegroHttpEntity(){
         HttpHeaders headers=new HttpHeaders();
 
-        headers.add("Authorization","Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJhbGxlZ3JvX2FwaSJdLCJleHAiOjE1ODM2MTUwNDMsImp0aSI6ImNmOTRmYjgxLTIwMjgtNGI2My1iNGIyLTBiMDJkZWU5YTNlNiIsImNsaWVudF9pZCI6IjhjOTM0NGEyODE1NjQyZjBhMDU5NzdiZDNhOWJkZmQ3In0.s_kg3RQ7CDnQUJZgeolB-0JBfwNj0B4Wop5xDZ4m7b6_MOobZsfEOI5fhCuimU7h5h0-FzJptoZ9KZtUoBtBlaNS8Hv1a8g22oKOZo6xhY2bLtlv7WiLmzDAS3YlxAWgOT1s5Z6kOU-hEJBb8zClnmqKtFojd2g7IiUMFShTLCBr0vKlUSKLFG10bZsnWKtcVW_es0r-aDmHvPyDmcfE6DhoAtsiviM4YaOEgiQ-61UgHy4ELcBqcJSNVGqmD8HrGfZcKYc1Ed0GIgvCkx0Xd_Fuk3AEbX6Ifor0bn7dinTQb2fTU-gDwXqXSeTuDDe8x-W71OrPYQqmvFP4bxe-ow");
+        headers.add("Authorization","Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJhbGxlZ3JvX2FwaSJdLCJleHAiOjE1ODM4MjI4NzcsImp0aSI6IjAxMTFiZGYxLTYzMDEtNDE3Zi04MzIxLWZlNDZjNjRlNjFkMyIsImNsaWVudF9pZCI6IjhjOTM0NGEyODE1NjQyZjBhMDU5NzdiZDNhOWJkZmQ3In0.5r38FR18IdZa5orn0kEciwpY4cGYe2NWOH4eeTVvr7zvhFXdrol9Yq38QHs1VCkko2c1EjLoMDA1gOQqlJIHs7SvdhQCO6rIYV2scTSvLV0UXh7l9bl_-VWUE5cBTIGzhJKcWK0rKGo2YDn3qoDsUOnMrN9gvSqdT1uBAkSZ1gPKJNHrTue4H8sHK_B4W-PbgdyZNjNfZXlVTrBF3tHW4nNroUBPjbTBG3H4dobGqJshlaRkWG7n4RW_vBI7DEYVwBT868XI5RO29AdWXmTiQYlvjY0IEvo6WM5TiW1lZgVCQJacNVwbXx1Jot-k0A7lk24Q3ZkNPOUzCHLsFPoJRg");
         headers.add("Accept","application/vnd.allegro.public.v1+json");
 
         HttpEntity entity=new HttpEntity(headers);

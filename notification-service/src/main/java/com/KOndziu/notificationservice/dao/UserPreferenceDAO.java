@@ -3,6 +3,7 @@ package com.KOndziu.notificationservice.dao;
 import com.KOndziu.notificationservice.modules.UserPreference;
 import com.KOndziu.notificationservice.specifications.SearchCriteria;
 import com.KOndziu.notificationservice.specifications.UserPreferenceQueryCriteriaConsumer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -19,6 +20,8 @@ public class UserPreferenceDAO implements IUserPreferenceDAO {
 
     @PersistenceContext
     EntityManager entityManager;
+
+
 
     @Override
     public List<UserPreference> searchUserPreference(List<SearchCriteria> params) {
@@ -38,10 +41,5 @@ public class UserPreferenceDAO implements IUserPreferenceDAO {
 
 
     }
-    @Override
-    public List<UserPreference> findAll(){
-        String query="Select * from user_preferences";
-        return entityManager.createQuery(query).getResultList();
 
-    }
 }

@@ -8,5 +8,5 @@ import java.util.List;
 public interface IUserPreferenceDAO {
 
     public List<UserPreference> searchUserPreference(List<SearchCriteria> params);
-    List<UserPreference> findAll();
+
 }

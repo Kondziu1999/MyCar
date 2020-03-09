@@ -1,6 +1,7 @@
 package com.KOndziu.notificationservice.services;
 
 import com.KOndziu.notificationservice.dao.UserPreferenceDAO;
+import com.KOndziu.notificationservice.dao.UserPreferenceJpaRepository;
 import com.KOndziu.notificationservice.dto.MarketCarDto;
 import com.KOndziu.notificationservice.modules.UserPreference;
 import com.KOndziu.notificationservice.specifications.SearchCriteria;
@@ -21,12 +22,15 @@ public class UserPreferenceService {
     @Autowired
     private  UserPreferenceDAO userPreferenceDAO;
 
+    //it is added here since there is a problem with entity manager
+    @Autowired
+    UserPreferenceJpaRepository userPreferenceJpaRepository;
 //    @Autowired
 //    public UserPreferenceService(UserPreferenceDAO userPreferenceDAO) {
 //        this.userPreferenceDAO = userPreferenceDAO;
 //    }
     public List<UserPreference> findAll(){
-        return userPreferenceDAO.findAll();
+        return userPreferenceJpaRepository.findAll();
     }
 
     //call user preference dao to get appropriate UserPreferences
