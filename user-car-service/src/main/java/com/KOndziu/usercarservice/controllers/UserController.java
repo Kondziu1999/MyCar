@@ -6,19 +6,24 @@ import com.KOndziu.usercarservice.exceptions.UserNotFoundException;
 import com.KOndziu.usercarservice.modules.User;
 import com.KOndziu.usercarservice.modules.UserIdentities;
 import com.KOndziu.usercarservice.modules.UserPreference;
+import com.KOndziu.usercarservice.modules.UserTrackingOffers;
 import com.KOndziu.usercarservice.payload.UserDTO;
 import com.KOndziu.usercarservice.payload.UserIdentitiesDto;
 import com.KOndziu.usercarservice.payload.UserPreferenceDTO;
 import com.KOndziu.usercarservice.repos.UserIdentitiesRepository;
 import com.KOndziu.usercarservice.repos.UserPreferencesRepository;
 import com.KOndziu.usercarservice.repos.UserRepository;
+import com.KOndziu.usercarservice.repos.UserTrackingOffersRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 @RefreshScope
@@ -30,16 +35,18 @@ public class UserController {
     private final UserPreferencesRepository userPreferencesRepository;
     private final UserIdentitiesRepository userIdentitiesRepository;
     private Supplier<User> emptyUserSupp = () -> new User("not found", "not found");
+    private final UserTrackingOffersRepository userTrackingOffersRepository;
 
     @Value("${my.app}")
     private String app;
     @Value("${market-service.port}")
     private String marketServicePort;
 
-    public UserController(UserRepository userRepository, UserPreferencesRepository userPreferencesRepository, UserIdentitiesRepository userIdentitiesRepository) {
+    public UserController(UserRepository userRepository, UserPreferencesRepository userPreferencesRepository, UserIdentitiesRepository userIdentitiesRepository, UserTrackingOffersRepository userTrackingOffersRepository) {
         this.userRepository = userRepository;
         this.userPreferencesRepository = userPreferencesRepository;
         this.userIdentitiesRepository = userIdentitiesRepository;
+        this.userTrackingOffersRepository = userTrackingOffersRepository;
     }
 
 
@@ -97,5 +104,12 @@ public class UserController {
 
         return new ResponseEntity<>("identities updated", HttpStatus.OK);
     }
+    @GetMapping("/trackingOffers/{userId}")
+    public List<UserTrackingOffers> getUserTrackingOffers(@PathVariable Integer userId){
+        //userTrackingOffersRepository
+        User user=userRepository.findById(userId)
+                .orElseThrow(()->new UserNotFoundException(userId));
 
+        return user.getUserTrackingOffers();
+    }
 }
