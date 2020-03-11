@@ -7,12 +7,14 @@ import com.KOndziu.notificationservice.dto.ResearchServicePayload.CarsWrapper;
 import com.KOndziu.notificationservice.dto.ResearchServicePayload.ItemsWrapper;
 import com.KOndziu.notificationservice.dto.UserDTO;
 import com.KOndziu.notificationservice.modules.UserPreference;
+import com.KOndziu.notificationservice.modules.UserTrackingOffers;
 import io.micrometer.core.instrument.step.StepCounter;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -68,6 +70,7 @@ public class NotificationService {
         return builder.toString();
     }
 
+    @Async
     public void sendMail(String to, String subject,String text,boolean isHtmlContent) {
 
         MimeMessage mimeMessage=javaMailSender.createMimeMessage();
@@ -117,15 +120,13 @@ public class NotificationService {
     }
 
     //create announcement url suffix
+    //TODO merge those two methods into one
     public List<String> getOfferUrlSuffix(ItemsWrapper itemsWrapper){
         StringBuilder builder=new StringBuilder();
-        //List<CarInfo> carInfosPromoted=itemsWrapper.getItems().getPromoted();
-        //List<CarInfo> carInfos=itemsWrapper.getItems().getRegular();
+
         List<CarInfo> infos= Stream.concat(itemsWrapper.getItems().getPromoted().stream(),
                                             itemsWrapper.getItems().getRegular().stream())
                 .collect(Collectors.toList());
-
-       // carInfosPromoted.addAll(carInfos); //add another infos
 
         List<String> urls=infos.stream().map(carInfo -> {
             builder.setLength(0); //clear builder every time
@@ -135,6 +136,22 @@ public class NotificationService {
                 builder.append("-");
             }
             builder.append(carInfo.getId());
+            return builder.toString();
+        }).collect(Collectors.toList());
+
+        return urls;
+    }
+    public List<String> getOfferUrlSuffix(List<UserTrackingOffers> untrackedOffer){
+        StringBuilder builder=new StringBuilder();
+
+        List<String> urls=untrackedOffer.stream().map(offer -> {
+            builder.setLength(0); //clear builder every time
+            List<String> tokens=parseOfferInfoToURL(offer.getName());
+            for(String token:tokens){
+                builder.append(token);
+                builder.append("-");
+            }
+            builder.append(offer.getOfferId());
             return builder.toString();
         }).collect(Collectors.toList());
 

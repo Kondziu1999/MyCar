@@ -25,6 +25,9 @@ public class UserTrackingOffers {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "user_id")
+    private Integer userId;
+
     public UserTrackingOffers(String offerId, String name) {
         OfferId = offerId;
         this.name = name;

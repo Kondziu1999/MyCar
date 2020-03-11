@@ -20,6 +20,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -77,40 +78,47 @@ public class NotificationController {
         // of userPreference has occurred
         return wrapper.getBody();
     }
+
     @GetMapping("/news2")
-    public ItemsWrapper checkForNewsTest() throws JsonProcessingException {
+    public List<UserTrackingOffers> checkForNewsTest() throws JsonProcessingException {
+        List<UserTrackingOffers> listForTestPurpose=new LinkedList<>();
+
         List<UserPreference> userPreferences=userPreferenceService.findAll();
         //convert to dto in order to send it in body of request to allegro
         List<UserPreferenceDTO> userPreferenceDTOS=userPreferences.stream()
                 .map(UserPreferenceDTO::convertToDTO)
                 .collect(Collectors.toList());
 
-        List<UserPreferenceDTO> usersToUpdate=new LinkedList<>();
+
         userPreferenceDTOS.stream().forEach(userPreferenceDTO -> {
             //fetch tracked offers from db
-            List<UserTrackingOffers> userTrackingOffers;
             UserTrackingOffersWrapper trackingOffersWrapper=
                     restTemplate.getForObject("http://localhost:8080/users/trackingOffers/"+userPreferenceDTO.getUserId(),
                             UserTrackingOffersWrapper.class);
             //check for offers
-            ResponseEntity<ItemsWrapper> wrapper=
+            ResponseEntity<ItemsWrapper> itemsWrapper=
                     restTemplate.postForEntity("http://localhost:8000/offers",userPreferenceDTO,ItemsWrapper.class);
 
+            //check untracked offers
+            List<UserTrackingOffers> untrackedOffers=comparingService.getUntrackedOffers(trackingOffersWrapper,itemsWrapper);
+            untrackedOffers.forEach(offers -> offers.setUserId(userPreferenceDTO.getUserId()));
+            //save untrackedOffers into db
+            userTrackingOffersRepository.saveAll(untrackedOffers);
+            //
+            if(!untrackedOffers.isEmpty()){
+                List<String> urls=notificationService.getOfferUrlSuffix(untrackedOffers);
+                String msg=notificationService.prepareMsgForUser(urls);
+                //TODO add fetching user email
+                notificationService.sendMail("susmekk@gmail.com","auta",msg,true);
+                //TODO delete it
+                untrackedOffers.stream().forEach(offers -> listForTestPurpose.add(offers));
+            }
 
         });
-        UserPreferenceDTO dto=UserPreferenceDTO.convertToDTO(userPreferences.get(0));
-        ResponseEntity<ItemsWrapper> wrapper=
-                restTemplate.postForEntity("http://localhost:8000/offers",dto,ItemsWrapper.class);
-        if(wrapper.hasBody()) {
-            List<String> urls=notificationService.getOfferUrlSuffix(wrapper.getBody());
-            String msg=notificationService.prepareMsgForUser(urls);
-            notificationService.sendMail("susmekk@gmail.com","auta",msg,true);
-        }
 
-
-
-        //TODO add sending request to research service in order to get info if the new car meeting the requirements
-        // of userPreference has occurred
-        return wrapper.getBody();
+        return listForTestPurpose;
     }
+
+
+
 }

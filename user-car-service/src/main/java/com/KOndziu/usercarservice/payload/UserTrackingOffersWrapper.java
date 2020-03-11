@@ -1,6 +1,5 @@
 package com.KOndziu.usercarservice.payload;
 
-import com.KOndziu.usercarservice.modules.UserTrackingOffers;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,5 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserTrackingOffersWrapper {
-    private List<UserTrackingOffers> userTrackingOffers;
+    private List<UserTrackingOfferDTO> userTrackingOffers;
 }

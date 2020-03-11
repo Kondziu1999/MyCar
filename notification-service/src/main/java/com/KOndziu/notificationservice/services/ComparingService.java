@@ -5,6 +5,7 @@ import com.KOndziu.notificationservice.dto.ResearchServicePayload.CarInfo;
 import com.KOndziu.notificationservice.dto.ResearchServicePayload.ItemsWrapper;
 import com.KOndziu.notificationservice.dto.UserTrackingOffersWrapper;
 import com.KOndziu.notificationservice.modules.UserTrackingOffers;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,45 +17,45 @@ import java.util.stream.Stream;
 public class ComparingService {
 
     public List<UserTrackingOffers> getUntrackedOffers(UserTrackingOffersWrapper trackingOffersWrapper, ResponseEntity<ItemsWrapper> wrapper) {
+        //return list
         List<UserTrackingOffers> untrackedOffers = new LinkedList<>();
 
         //check if there is any tracking offer
-        if (trackingOffersWrapper.userTrackingOffers != null) {
-            //get and sort offers
+        if (!trackingOffersWrapper.getUserTrackingOffers().isEmpty()) {
+            //get and sort user tracking offers
             List<UserTrackingOffers> userTrackingOffers = trackingOffersWrapper.getUserTrackingOffers()
                     .stream().sorted(Comparator.comparing(UserTrackingOffers::getOfferId))
                     .collect(Collectors.toList());
-            //if wrapper has body compare to it
-            if (wrapper.hasBody()) {
-                //get ar infos
-                List<CarInfo> carInfos = Stream.concat(wrapper.getBody().getItems().getPromoted().stream(),
+            //if wrapper has status 200 (has body)
+            if (wrapper.getStatusCode()== HttpStatus.OK) {
+                //get car infos from allegro
+                List<CarInfo> carInfosAllegro = Stream.concat(wrapper.getBody().getItems().getPromoted().stream(),
                         wrapper.getBody().getItems().getRegular().stream())
                         .collect(Collectors.toList());
                 //TODO ktorej z allegro nie ma w offers z bd
-                //check which car info are not present in offer
-//                return userTrackingOffers.stream()
-//                        .filter(offer -> !ifSetContain(offer,carInfos))
-//                        .collect(Collectors.toList());
-//
-                userTrackingOffers.stream().forEach(offers -> {
-                    //get info which are not in offers
-                    Optional<CarInfo> carInfo=ifSetContain(offers,carInfos);
-                    if(carInfo.isPresent()){
-                        untrackedOffers.add(new UserTrackingOffers(carInfo.get().getId(),carInfo.get().getName()));
+
+                carInfosAllegro.stream().forEach(allegroOffer->{
+                    //if allegro offer isn't in tracking offer add to untracked offers
+                    if(!ifAllegroOfferIsTracked(userTrackingOffers,allegroOffer)){
+                        untrackedOffers.add(new UserTrackingOffers(allegroOffer.getId(),allegroOffer.getName()));
                     }
+
                 });
 
                 return untrackedOffers;
             }
-            //if there is no body return empty list
+            //if there is nothing in allegroOffers return empty untrackedOffers
             else { return untrackedOffers; }
 
         }
         //if there is no tracking offers
         else {
             //if wrapper has body convert body to tracking offer objects
-            if(wrapper.hasBody()){
+            if(wrapper.getStatusCode()==HttpStatus.OK){
                 wrapper.getBody().getItems().getPromoted().stream().forEach(carInfo -> {
+                    untrackedOffers.add(new UserTrackingOffers(carInfo.getId(),carInfo.getName()));
+                });
+                wrapper.getBody().getItems().getRegular().stream().forEach(carInfo -> {
                     untrackedOffers.add(new UserTrackingOffers(carInfo.getId(),carInfo.getName()));
                 });
                 return untrackedOffers;
@@ -65,15 +66,18 @@ public class ComparingService {
 
 
     }
+    public boolean ifAllegroOfferIsTracked(List<UserTrackingOffers> userTrackingOffers,CarInfo allegroCarInfo){
 
-    public Optional<CarInfo> ifSetContain(UserTrackingOffers offer,List<CarInfo> carInfos){
-
-        Optional<CarInfo> optionalCarInfo=carInfos.stream()
-                .filter(carInfo ->carInfo.getId().equals(offer.getOfferId()))
+        Optional<UserTrackingOffers> offersOptional=userTrackingOffers.stream()
+                .filter(offer->offer.getOfferId().equals(allegroCarInfo.getId()))
                 .findFirst();
 
-        return optionalCarInfo;
+
+        //if offer is present return false
+        return offersOptional.isPresent();
     }
+
+
 }
 
 

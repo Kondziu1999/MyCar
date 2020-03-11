@@ -7,9 +7,7 @@ import com.KOndziu.usercarservice.modules.User;
 import com.KOndziu.usercarservice.modules.UserIdentities;
 import com.KOndziu.usercarservice.modules.UserPreference;
 import com.KOndziu.usercarservice.modules.UserTrackingOffers;
-import com.KOndziu.usercarservice.payload.UserDTO;
-import com.KOndziu.usercarservice.payload.UserIdentitiesDto;
-import com.KOndziu.usercarservice.payload.UserPreferenceDTO;
+import com.KOndziu.usercarservice.payload.*;
 import com.KOndziu.usercarservice.repos.UserIdentitiesRepository;
 import com.KOndziu.usercarservice.repos.UserPreferencesRepository;
 import com.KOndziu.usercarservice.repos.UserRepository;
@@ -25,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @RefreshScope
 @RestController
@@ -105,11 +104,17 @@ public class UserController {
         return new ResponseEntity<>("identities updated", HttpStatus.OK);
     }
     @GetMapping("/trackingOffers/{userId}")
-    public List<UserTrackingOffers> getUserTrackingOffers(@PathVariable Integer userId){
+    public UserTrackingOffersWrapper getUserTrackingOffers(@PathVariable Integer userId){
         //userTrackingOffersRepository
         User user=userRepository.findById(userId)
                 .orElseThrow(()->new UserNotFoundException(userId));
 
-        return user.getUserTrackingOffers();
+        List<UserTrackingOfferDTO> userTrackingOfferDTOS=user.getUserTrackingOffers().stream()
+                .map(UserTrackingOfferDTO::convertToDTO)
+                .collect(Collectors.toList());
+
+        UserTrackingOffersWrapper wrapper=new UserTrackingOffersWrapper();
+        wrapper.setUserTrackingOffers(userTrackingOfferDTOS);
+        return wrapper;
     }
 }
