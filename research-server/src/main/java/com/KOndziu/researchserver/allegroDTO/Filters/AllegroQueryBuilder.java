@@ -22,6 +22,7 @@ public class AllegroQueryBuilder {
 
 
     //TODO change this awful function
+    //TODO add dictionary in order to handle multiple languages
     public String compileToSearchString(UserPreferenceDTO userPreferenceDTO,Optional<Integer> modelCategoryId){
         //TODO find particular model id
         StringBuilder stringBuilder=new StringBuilder();

@@ -17,21 +17,25 @@ import java.util.Optional;
 
 @RestController
 public class AllegroConnector {
-
-
     @Value("${allegro.offers.uri}")
     private String allegroOffersUri;
     @Value("${allegro.offers.carsId.param}")
     private String allegroCarParam;
 
-    @Autowired
     private ResponseWrapper filterWrapper;
-    @Autowired
     private HashFilters hashFilters;
+    private RestTemplate restTemplate;
+    private AllegroQueryBuilder allegroQueryBuilder;
+
     @Autowired
-    RestTemplate restTemplate;
-    @Autowired
-    AllegroQueryBuilder allegroQueryBuilder;
+    public AllegroConnector(ResponseWrapper filterWrapper,HashFilters hashFilters,
+                            RestTemplate restTemplate,AllegroQueryBuilder allegroQueryBuilder) {
+
+    this.filterWrapper=filterWrapper;
+    this.hashFilters=hashFilters;
+    this.restTemplate=restTemplate;
+    this.allegroQueryBuilder=allegroQueryBuilder;
+    }
 
     @PostConstruct
     private void getFilters(){
