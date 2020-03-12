@@ -103,6 +103,13 @@ public class UserController {
 
         return new ResponseEntity<>("identities updated", HttpStatus.OK);
     }
+    @GetMapping("/identities/{userId}")
+    public ResponseEntity<UserIdentitiesDto> getUserIdentities(@PathVariable Integer userId){
+        UserIdentities userIdentities=userIdentitiesRepository.findById(userId)
+                .orElseThrow(()->new UserNotFoundException(userId));
+
+        return new ResponseEntity<>(UserIdentitiesDto.convertToDTO(userIdentities),HttpStatus.OK);
+    }
     @GetMapping("/trackingOffers/{userId}")
     public UserTrackingOffersWrapper getUserTrackingOffers(@PathVariable Integer userId){
         //userTrackingOffersRepository

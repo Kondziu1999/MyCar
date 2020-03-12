@@ -1,0 +1,14 @@
+spring:
+    cloud:
+        config:
+            uri: "http://localhost:8888"
+    application:
+        name: research-server
+server:
+    port: 8000
+
+allegro:
+    offers:
+        uri: "https://api.allegro.pl/offers/listing"
+        carsId:
+            param: "category.id=4029"

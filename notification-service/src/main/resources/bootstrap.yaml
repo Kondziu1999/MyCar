@@ -20,4 +20,11 @@ spring:
     config:
       uri: "http://localhost:8888"
 
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+
 

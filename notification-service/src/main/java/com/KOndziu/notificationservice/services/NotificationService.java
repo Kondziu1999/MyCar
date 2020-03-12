@@ -92,7 +92,8 @@ public class NotificationService {
     //to search in local db
     public List<String> parseOfferInfoToURL(String word){
         String uri=word.toLowerCase();
-        String delimiters="\\s+|,\\s*|\\.\\s*|\\+\\s*|-\\s*";
+        //TODO upgrade it to handle "!!!"
+        String delimiters="\\s+|,\\s*|\\.\\s*|\\+\\s*|-\\s*|/\\s*|!+\\s*";
         //String pattern="[a-z]{1,}|[1-9]{1,}";
         String [] tokens=uri.split(delimiters);
         List<String> tokensList=Arrays.asList(tokens);
@@ -106,11 +107,11 @@ public class NotificationService {
             String signBeginning=token.substring(0,1);
             String signEnd=token.substring(token.length()-1);
             //delete beginning sign
-            if(signBeginning.matches("[-+.^:,!]")){
+            if(signBeginning.matches("[-+.^:,!)(%]")&&returnVal.length()>0){
                 returnVal=returnVal.substring(1);
             }
             //delete ending sign
-            if(signEnd.matches("[-+.^:,!]")){
+            if(signEnd.matches("[-+.^:,!)(%]")&&returnVal.length()>0){
                 returnVal=returnVal.substring(0,returnVal.length()-1);
             }
             return returnVal;

@@ -92,7 +92,7 @@ public class AllegroConnector {
     public HttpEntity getAllegroHttpEntity(){
         HttpHeaders headers=new HttpHeaders();
 
-        headers.add("Authorization","Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJhbGxlZ3JvX2FwaSJdLCJleHAiOjE1ODM5OTkzNTAsImp0aSI6IjQxZWUyNTgwLTdhMGMtNGIxNS05Y2QxLTMwODcwOTlkZGJlZCIsImNsaWVudF9pZCI6IjhjOTM0NGEyODE1NjQyZjBhMDU5NzdiZDNhOWJkZmQ3In0.tFm1qiaprkiBsar67axWlRDSH8YNMPq0b_3sw2TRRmn8NQVxiWMNHuaIHtZFQX-HyjdEJAJGQqzOHw_8omMg1bJzGRbFRQxmtGDSysdwxkoU8ibauz6uMOk1wgXS-zBU0Pi3Pd-YewPfC2dCc8NtAWOIHN0tT2-2L6ZJbDbyGoBgx898vA9ea_zS4Jeys_5QWZ7oTqIXWP2V_pSvMJuDpAvci4u6-qI7bqGFpOe647A6WK4-fAnHLsCq8oYsS12Eu9LpES3_J2DTHp4_iNUnUi6H7Gcv0GXpyCq6gJ0Z6p-2DkSg73llzvAaCuEfD1G-G5-nxMOAKWj42F3P4xt5lQ");
+        headers.add("Authorization","Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJhbGxlZ3JvX2FwaSJdLCJleHAiOjE1ODQwNTI1MDcsImp0aSI6ImY2MmIwMmQ3LTZhMDAtNGM1Yy04ZGFiLWU2MGMzZmI1YzQxMCIsImNsaWVudF9pZCI6IjhjOTM0NGEyODE1NjQyZjBhMDU5NzdiZDNhOWJkZmQ3In0.Cdbbx42Bv6tLbESPzhsUp2cG6jkT7FOCr360q4JZrZpLz-YSnxIUeLN2KA6G0hn9fx187BaJ-VpSamof8PAhgQRoUv2WG8SLuTURblOHegorpz2Q-aCIt1To88rsh7Dn1A9W4hqmNadlPIgWsmoALm7ID-OGlmDzL7X0_tRETeLpPJHcqw2voJY7VPbM4Cbv2cpfWJTXuRu5GxCOeTd-kWMMER-9byDfy7vs26JBruF-wUp-iuHgLubOoUxHT0lrSl5g3FbKJifkIcdJ8iwWiyAT4sVPuupBNjI_pq3eJDdWZ0qEvJocIUnY0tBTbRl-DoI2iSYj6XP9uGhXNjTTGA");
         headers.add("Accept","application/vnd.allegro.public.v1+json");
 
         HttpEntity entity=new HttpEntity(headers);

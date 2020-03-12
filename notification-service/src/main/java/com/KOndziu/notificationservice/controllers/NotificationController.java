@@ -1,9 +1,12 @@
 package com.KOndziu.notificationservice.controllers;
 
+import com.KOndziu.notificationservice.clients.ResearchServerClient;
+import com.KOndziu.notificationservice.clients.UserClient;
 import com.KOndziu.notificationservice.dto.MarketCarDto;
 import com.KOndziu.notificationservice.dto.ResearchServicePayload.CarInfo;
 import com.KOndziu.notificationservice.dto.ResearchServicePayload.CarsWrapper;
 import com.KOndziu.notificationservice.dto.ResearchServicePayload.ItemsWrapper;
+import com.KOndziu.notificationservice.dto.UserIdentitiesDto;
 import com.KOndziu.notificationservice.dto.UserPreferenceDTO;
 import com.KOndziu.notificationservice.dto.UserTrackingOffersWrapper;
 import com.KOndziu.notificationservice.modules.UserPreference;
@@ -42,6 +45,10 @@ public class NotificationController {
     UserTrackingOffersRepository userTrackingOffersRepository;
     @Autowired
     ComparingService comparingService;
+    @Autowired
+    UserClient userClient;
+    @Autowired
+    ResearchServerClient researchServerClient;
 
     private RestTemplate restTemplate=new RestTemplate();
 
@@ -82,37 +89,38 @@ public class NotificationController {
     @GetMapping("/news2")
     public List<UserTrackingOffers> checkForNewsTest() throws JsonProcessingException {
         List<UserTrackingOffers> listForTestPurpose=new LinkedList<>();
-
         List<UserPreference> userPreferences=userPreferenceService.findAll();
         //convert to dto in order to send it in body of request to allegro
         List<UserPreferenceDTO> userPreferenceDTOS=userPreferences.stream()
                 .map(UserPreferenceDTO::convertToDTO)
                 .collect(Collectors.toList());
 
-
         userPreferenceDTOS.stream().forEach(userPreferenceDTO -> {
             //fetch tracked offers from db
-            UserTrackingOffersWrapper trackingOffersWrapper=
-                    restTemplate.getForObject("http://localhost:8080/users/trackingOffers/"+userPreferenceDTO.getUserId(),
-                            UserTrackingOffersWrapper.class);
-            //check for offers
-            ResponseEntity<ItemsWrapper> itemsWrapper=
-                    restTemplate.postForEntity("http://localhost:8000/offers",userPreferenceDTO,ItemsWrapper.class);
-
+            UserTrackingOffersWrapper trackingOffersWrapper=userClient.getUserTrackingOffers(userPreferenceDTO.getUserId());
+            //fetch carInfos from allegro
+            ResponseEntity<ItemsWrapper> itemsWrapper=researchServerClient.getOffersForUser(userPreferenceDTO);
             //check untracked offers
             List<UserTrackingOffers> untrackedOffers=comparingService.getUntrackedOffers(trackingOffersWrapper,itemsWrapper);
             untrackedOffers.forEach(offers -> offers.setUserId(userPreferenceDTO.getUserId()));
-            //save untrackedOffers into db
-            userTrackingOffersRepository.saveAll(untrackedOffers);
-            //
+
+            //if there is untracked offer
             if(!untrackedOffers.isEmpty()){
-                List<String> urls=notificationService.getOfferUrlSuffix(untrackedOffers);
-                String msg=notificationService.prepareMsgForUser(urls);
-                //TODO add fetching user email
-                notificationService.sendMail("susmekk@gmail.com","auta",msg,true);
-                //TODO delete it
-                untrackedOffers.stream().forEach(offers -> listForTestPurpose.add(offers));
+                ResponseEntity<UserIdentitiesDto> userIdentitiesDto=userClient
+                        .getUserIdentities(userPreferenceDTO.getUserId());
+                //if there is such a user
+                if(userIdentitiesDto.getStatusCode()==HttpStatus.OK){
+                    List<String> urls=notificationService.getOfferUrlSuffix(untrackedOffers);
+                    String msg=notificationService.prepareMsgForUser(urls);
+                    notificationService.sendMail(userIdentitiesDto.getBody().getEmail(),"auta",msg,true);
+                    //TODO delete it
+                    untrackedOffers.stream().forEach(offers -> listForTestPurpose.add(offers));
+
+                    userTrackingOffersRepository.saveAll(untrackedOffers);
+                }
             }
+
+            //save untrackedOffers into db after sending mail in case of error
 
         });
 
