@@ -8,4 +8,14 @@ spring:
     config:
       uri: "http://localhost:8888"
 
+  datasource:
+    url: "jdbc:mysql://localhost:3306/carservice?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false"
+    username: "root"
+    password:  "mintajzporem"
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+jwt:
+  secret: tajnykod
 
