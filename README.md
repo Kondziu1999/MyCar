@@ -1,0 +1,22 @@
+# MyCar
+MyCar app based on microservices infrastructure.
+
+App is composed of two main functionalities:
+
+a)Car market service (backend)
+
+which was my first idea and it was developed to some extend like addind offers to market and storing into database
+or dinamically searching for offers(by the use od criteria queries)
+
+b)User preferences notifier
+
+This is the most useful part since service allows user to type his car preference and look it up on the internet.
+
+To search for particular offer i made use of Allegro API.
+
+Service look up for offers constantly and send email whenever appropriate offer shows up. 
+
+Appropriate means the offer which meet particular user criteria.
+
+There is a plan to make frontend which will consume MyCar api as soon as i become familar with any JS framework.
+
