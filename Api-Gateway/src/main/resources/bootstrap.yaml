@@ -17,5 +17,5 @@ spring:
       ddl-auto: update
 
 jwt:
-  secret: tajnykod
+  secret: tajnykod #here your secret key to jwt token 
 
