@@ -18,5 +18,11 @@ Service look up for offers constantly and send email whenever appropriate offer 
 
 Appropriate means the offer which meet particular user criteria.
 
-There is a plan to make frontend which will consume MyCar api as soon as i become familar with any JS framework.
+The Output of app looks like this: 
+<img src="images/output.jpg">
 
+Links are generated on backend and sended via email.
+
+To get notifications all user have to do is to send preferences via JSON to appropriate endpoint.
+There is a plan to make frontend which will consume MyCar api and make frontend side of this app, since now it 
+is used only for personal purposes.
